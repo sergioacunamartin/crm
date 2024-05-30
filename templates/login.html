@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Basic PyCRM: Iniciar Sesión{% endblock %}
+{% block body %}
+<div class="container" style="height:100%; display:flex">
+  <div class="row" style="margin:auto;">
+    <main class="form-signin">
+      <form action="/" method="POST">
+        {% with errors = get_flashed_messages(category_filter=["errorPass", "errorUser"]) %}
+          {% if errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              {% for message in errors %}
+                {{ message }}
+              {% endfor %}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endif %}
+        {% endwith %}
+        <img class="mb-2" src="{{ url_for("static", filename="img/logo.png") }}" alt="Logo" width="100%">
+        <div class="form-floating">
+          <input type="email" class="form-control" id="floatingInput" name="email" placeholder="name@example.com" autofocus required>
+          <label for="floatingInput">Email</label>
+        </div>
+        <div class="form-floating">
+          <input type="password" class="form-control" name="pass" id="floatingPassword" placeholder="Password" required>
+          <label for="floatingPassword">Contraseña</label>
+        </div>
+        <button class="w-100 btn btn-lg btn-primary btn-login" type="submit" title="Iniciar Sesión">Iniciar Sesión</button>
+        <p class="mt-5 mb-3 text-muted text-center">&copy; 2023. Creado por SAM</p>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

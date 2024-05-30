@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}PyCRM: Recompensas{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4">
+              <div class="d-flex align-items-center col-md-2 mb-2 mb-md-0 text-dark text-decoration-none">
+                <img class="pt-1" src="{{ url_for("static", filename="img/logo.png") }}" alt="Logo" width="100%">
+              </div>
+              <ul class="col-12 col-md-auto mb-2 justify-content-center mb-md-0 nav nav-tabs">
+                <li class="nav-item"><a href="/admin/tareas" class="nav-link px-3 link-dark" title="Tareas"><i class="bi bi-list-task"></i> Tareas</a></li>
+                <li class="nav-item"><a href="/admin/trabajadores" class="nav-link px-3 link-dark" title="Trabajadores"><i class="bi bi-people" ></i> Trabajadores</a></li>
+                <li class="nav-item"><a href="/admin/clientes" class="nav-link px-3 link-dark" title="Clientes"><i class="bi bi-buildings"></i> Clientes</a></li>
+                <li class="nav-item"><a href="#" class="nav-link px-3 link-dark active" title="Recompensas"><i class="bi bi-cash"></i> Recompensas</a></li>
+              </ul>
+              <div class="col-md-3 text-end">
+                    <a class="btn btn-primary btn-login dropdown-toggle" href="#" role="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-check"></i> Conectado como: {{ session.username }}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
+                        {% if session.username == "admin" %}
+                        <li><a class="dropdown-item" href="{{url_for('logout')}}"><i class="bi bi-door-closed"></i> Cerrar Sesión</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="#" title="Editar Perfil" data-toggle="modal" data-target="#modaleditTrabajador{{ idUsuarioLogeado[0] }}"><i class="bi bi-pencil"></i> Editar Perfil</a></li>
+                        <li><a class="dropdown-item" href="{{url_for('logout')}}"><i class="bi bi-door-closed"></i> Cerrar Sesión</a></li>
+                        {% endif %}
+                    </ul>
+              </div>
+            </header>
+        </div>
+          <span class="col-md-12 mt-4">
+                <div class="dropdown mb-4">
+                    <a class="btn btn-secondary dropdown-toggle btn-ordenar" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" title="Ordenar por...">
+                        <i class="bi bi-funnel"></i> Ordenar por...
+                    </a>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li><a class="dropdown-item" href="/admin/recompensas/" title="Ordenar por Nombre A-Z"><i class="bi bi-sort-alpha-down"></i> Nombre ASC</a></li>
+                          <li><a class="dropdown-item" href="/admin/recompensas/z-a" title="Ordenar por Nombre Z-A"><i class="bi bi-sort-alpha-up"></i> Nombre DESC</a></li>
+                        <li><a class="dropdown-item" href="/admin/recompensas/departamento" title="Ordenar por Departamento"><i class="bi bi-person-workspace"></i> Departamento</a></li>
+                      </ul>
+                </div>
+          </span>
+            <!--mostrar recompensas-->
+            <table class="table">
+                <thead class="thead-inverse">
+                <tr>
+                    <th><i class="bi bi-person-vcard"></i> Nombre</th>
+                    <th><i class="bi bi-person-workspace"></i> Departamento</th>
+                    <th><i class="bi bi-trophy"></i> Tareas Finalizadas</th>
+                    <th><i class="bi bi-cash"></i> Dinero Extra</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for recompensa in recompensas %}
+                <tr>
+                    <td>{{ recompensa[0] }}</td>
+                    <td>{{ recompensa[1] }}</td>
+                    <td>{{ recompensa[2] }}</td>
+                    {% if recompensa[2] >= 4 %}
+                        <td>{{ recompensa[2] * 10 - 30 }}€</td>
+                    {% else %}
+                        <td>0€</td>
+                    {% endif %}
+                </tr>
+                </tbody>
+                {% endfor %}
+            </table>
+            <!--Modal Editar Trabajador-->
+            <div id="modaleditTrabajador{{ datosTrabajador[0] }}" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="cabecera-modales"><h4>Editar Trabajador: {{ datosTrabajador[3] }}</h4></div>
+                                <form action="/admin/trabajadores/actualizar" method="post">
+                                    <div class="form-group">
+                                        <input hidden type="text" class="form-control" name="txtId" id="txtIdTrabajador" aria-describedby="helpId" value="{{ datosTrabajador[0] }}">
+                                        <input hidden type="text" class="form-control" name="txtIdCT" id="txtIdCT" aria-describedby="helpId" value="{{ datosTrabajador[1] }}">
+                                        <label>Nombre</label>
+
+                                        <input type="text" class="form-control" name="txtNombre" id="txtNombre" aria-describedby="helpId" value="{{ datosTrabajador[2] }}" hidden>
+                                        <input type="text" class="form-control" name="txtNuevoNombre" id="txtNuevoNombre" aria-describedby="helpId" value="{{ datosTrabajador[2] }}" required>
+
+                                        <label>Departamento</label>
+                                        <select class="custom-select" name="selectDepartamento" id="selectDepartamento" hidden>
+                                            <option value="{{ datosTrabajador[3] }}">{{ datosTrabajador[3] }}</option>
+                                            <option value="Diseño Gráfico">Diseño Gráfico</option>
+                                            <option value="Diseño Web">Diseño Web</option>
+                                            <option value="Programación">Programación</option>
+                                        </select>
+                                        <select class="custom-select" name="selectNuevoDepartamento" id="selectNuevoDepartamento" required>
+                                            <option value="{{ datosTrabajador[3] }}">{{ datosTrabajador[3] }}</option>
+                                            <option value="Diseño Gráfico">Diseño Gráfico</option>
+                                            <option value="Diseño Web">Diseño Web</option>
+                                            <option value="Programación">Programación</option>
+                                        </select>
+
+                                        <label>Usuario</label>
+                                        <input type="text" class="form-control" name="txtUsuario" id="txtUsuario" aria-describedby="helpId" value="{{ datosCuenta[1] }}" hidden>
+                                        {% if datosCuenta[1] == session.username %}
+                                        <input hidden type="text" class="form-control" name="txtNuevoUsuario" id="txtNuevoUsuario" aria-describedby="helpId" value="{{ datosCuenta[1] }}" required>
+                                        <input disabled type="text" class="form-control" name="txtNuevoUsuario" id="" aria-describedby="helpId" value="{{ datosCuenta[1] }}" required>
+                                        {% else %}
+                                        <input type="text" class="form-control" name="txtNuevoUsuario" id="txtNuevoUsuario" aria-describedby="helpId" value="{{ datosCuenta[1] }}" required>
+                                        {% endif %}
+
+                                        <label>Email</label>
+                                        <input type="email" class="form-control" name="txtEmail" id="txtEmail" aria-describedby="helpId" value="{{ datosCuenta[2] }}" autocomplete="off" hidden>
+                                        <input type="email" class="form-control" name="txtNuevoEmail" id="txtNuevoEmail" aria-describedby="helpId" value="{{ datosCuenta[2] }}" autocomplete="off" required>
+
+                                        <label>Contraseña</label>
+                                        <input type="password" class="form-control" name="txtPass" id="txtPass" aria-describedby="helpId" value="{{ datosCuenta[3] }}" autocomplete="off" hidden>
+                                        <input type="password" class="form-control" name="txtNuevoPass" id="txtNuevoPass" aria-describedby="helpId" value="{{ datosCuenta[3] }}" autocomplete="off" required>
+
+                                        <label>Nivel Acceso</label>
+                                        <select class="custom-select" name="selectNivel" id="selectNivel" hidden>
+                                            <option value="{{ datosCuenta[4] }}">{{ datosCuenta[4] }}</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="Trabajador">Trabajador</option>
+                                            <option value="Cliente">Cliente</option>
+                                        </select>
+                                        <select class="custom-select" name="selectNuevoNivel" id="selectNuevoNivel" required>
+                                            <option value="{{ datosCuenta[4] }}">{{ datosCuenta[4] }}</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="Trabajador">Trabajador</option>
+                                            <option value="Cliente">Cliente</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-success">Actualizar</button>
+                                        <a href="/admin/tareas/" class="btn btn-primary">Cerrar</a>
+                                    </div>
+                                </form>
+                        </div>
+                    </div>
+                </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}PyCRM: Hola {{ session.username }}{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4">
+              <div class="d-flex align-items-center col-md-2 mb-2 mb-md-0 text-dark text-decoration-none">
+                <img class="pt-1" src="{{ url_for("static", filename="img/logo.png") }}" alt="Logo" width="100%">
+              </div>
+              <div class="col-md-3 text-end">
+                    <a class="btn btn-primary btn-login dropdown-toggle" href="#" role="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-check"></i> Conectado como: {{ session.username }}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
+                        <li><a class="dropdown-item" href="{{url_for('logout')}}"><i class="bi bi-door-closed"></i> Cerrar Sesión</a></li>
+                    </ul>
+              </div>
+            </header>
+        </div>
+            <span class="col-md-12 mt-4">
+                <div class="dropdown mb-4">
+                    <a class="btn btn-secondary dropdown-toggle btn-ordenar" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" title="Ordenar por...">
+                        <i class="bi bi-funnel"></i> Ordenar por...
+                    </a>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li><a class="dropdown-item" href="/cliente/estado/" title="Ordenar por Estado"><i class="bi bi-clipboard2-data"></i> Estado</a></li>
+                        <li><a class="dropdown-item" href="/cliente/" title="Ordenar por Fecha"><i class="bi bi-calendar"></i> Fecha</a></li>
+                        <li><a class="dropdown-item" href="/cliente/prioridad/" title="Ordenar por Prioridad"><i class="bi bi-clock-history"></i> Prioridad</a></li>
+                        <li><a class="dropdown-item" href="/cliente/titulo/" title="Ordenar por Título"><i class="bi bi-card-heading"></i> Título</a></li>
+                      </ul>
+                </div>
+                <div class="dropdown-izquierda mb-4">
+                    <a class="btn btn-secondary dropdown-toggle btn-ordenar" href="#" role="button" id="dropdownMenuLinkIzquierda" data-bs-toggle="dropdown" aria-expanded="false" title="Contador de tareas">
+                        <i class="bi bi-list-ol"></i> Contador de Tareas
+                    </a>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li class="dropdown-item">Alta: {{ tareasAlta[0] }}</li>
+                        <li class="dropdown-item">Media: {{ tareasMedia[0] }}</li>
+                        <li class="dropdown-item">Baja: {{ tareasBaja[0] }}</li>
+                      </ul>
+                    <div class="btn btn-success" >
+                        <i class="bi bi-trophy"></i> Tareas Finalizadas: {{ tareasFinalizadas[0] }}
+                    </div>
+                </div>
+            </span>
+            <!--mostrar tarea-->
+            <table class="table">
+                <thead class="thead-inverse">
+                <tr>
+                    <th><i class="bi bi-calendar"></i> Fecha</th>
+                    <th><i class="bi bi-calendar-event"></i>  Fecha A.P.</th>
+                    <th><i class="bi bi-card-heading"></i> Título</th>
+                    <th><i class="bi bi-clipboard2-data"></i> Estado</th>
+                    <th><i class="bi bi-clock-history"></i> Prioridad</th>
+                    <th><i class="bi bi-database"></i> Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for tarea in tareas %}
+                <tr>
+                    <td>{{ tarea[3].strftime('%d-%m-%Y') }}</td>
+                    <td>{{ tarea[9].strftime('%d-%m-%Y') }}</td>
+                    <td>{{ tarea[4] }}</td>
+                    {% if tarea[6] == "Por empezar" %}
+                    <td><span><i class="bi bi-hourglass"></i> {{ tarea[6] }}</span></td>
+                    {% elif tarea[6] == "En proceso" %}
+                    <td><span><i class="bi bi-hourglass-split"></i> {{ tarea[6] }}</span></td>
+                    {% else %}
+                    <td><span><i class="bi bi-trophy"></i> {{ tarea[6] }}</span></td>
+                    {% endif %}
+                    {% if tarea[7] == "Alta" %}
+                    <td class="Alta"><span>{{ tarea[7] }}</span></td>
+                    {% elif tarea[7] == "Media" %}
+                    <td class="Media"><span>{{ tarea[7] }}</span></td>
+                    {% elif tarea[7] == "Baja" %}
+                    <td class="Baja"><span>{{ tarea[7] }}</span></td>
+                    {% elif tarea[7] == "Ninguna" %}
+                    <td class="Ninguna"><span>{{ tarea[7] }}</span></td>
+                    {% endif %}
+                    <td>
+                        <a href="#" class="btn btn-warning btn-editar" title="Ver Descripción" data-toggle="modal" data-target="#modaledit{{ tarea[0] }}"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>
+                </tbody>
+                <!--Modal Editar-->
+                <div id="modaledit{{ tarea[0] }}" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="cabecera-modales">
+                                <h4>Descripción de la tarea {{ tarea[4] }}</h4>
+                            </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label>Entrada</label>
+                                            <input type="text" class="form-control" name="txtFecha" id="txtFecha" aria-describedby="helpId" value="{{ tarea[3].strftime('%d-%m-%Y') }}" disabled>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Fin</label>
+                                            <input type="text" class="form-control" name="txtFechaFin" id="txtFechaFin" aria-describedby="helpId" value="{{ tarea[8].strftime('%d-%m-%Y') }}" disabled>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Actualización</label>
+                                            <input type="text" class="form-control" name="txtActualizacionPrioridad" id="txtActualizacionPrioridad" aria-describedby="helpId" value="{{ tarea[9].strftime('%d-%m-%Y') }}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <textarea class="form-control" name="txtDescripcion" id="txtDescripcion" aria-describedby="helpId">{{ tarea[5] }}</textarea>
+                                        </div>
+                                    </div>
+                                     <div class="row">
+                                        <div class="col-md-12">
+                                            <a href="/cliente/" class="btn btn-primary btn-login">Cerrar</a>
+                                        </div>
+                                     </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </table>
+    </div>
+</div>
+{% endblock %}

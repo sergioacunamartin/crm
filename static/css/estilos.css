@@ -1,0 +1,114 @@
+/*GENERAL*/
+html,
+body {
+  height: 100%;
+  background-image: url("../img/fondo.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/*Navegación*/
+.nav-tabs {font-size: 18px;}
+
+/*Login*/
+.container-interior {height:100%; display:flex;}
+
+/*Botón login*/
+.btn-login, btn-login:hover {background:#3770a1; border-color:#3770a1}
+.btn-primary:hover {background:#3770a1; border-color:#3770a1}
+.btn-login:hover {opacity:0.9;}
+
+/*Botón Finalizar*/
+.finalizar {cursor: not-allowed; background:#ccc; border:1px solid #ccc;  pointer-events: none;}
+p.finalizar {margin-bottom:0px;}
+
+/*Botón Editar y botón añadir*/
+.btn-warning, .btn-success  {color: #fff !important;}
+.btn-warning, .btn-success  {color: #fff !important;}
+
+/*FORMULARIO LOGIN*/
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
+}
+
+.form-signin .checkbox {
+  font-weight: 400;
+}
+
+.form-signin .form-floating:focus-within {
+  z-index: 2;
+}
+
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+input, textarea, select {margin-bottom:10px;}
+
+/*Formulario Editar*/
+.form-group {padding:0px 10px;}
+.form-group .row {margin-right: -10px; margin-left: -10px;;}
+
+/*MENSAJES*/
+.alert {padding:10px;}
+
+.alert-dismissible .close {
+    position: absolute;
+    top: -17px;
+    right: -19px;
+    padding: 0.75rem 1.25rem;
+    color: inherit;
+}
+
+button.close {
+    background-color: transparent;
+    border: 0;
+    appearance: none;
+}
+
+.close {
+    float: right;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+}
+
+/*Tabla*/
+.table th, .table thead th, .table td {border:none !important;}
+thead {background:#3770a1; color:#fff;}
+.table th {font-weight:normal;}
+.table td, .table th {vertical-align: middle;}
+
+.table th:last-child {background:#264e70;}
+.table td:last-child {background:#f9f9f9;}
+
+/*Ordenar, añadir*/
+.dropdown {float:right !important;}
+
+/*Popup*/
+.cabecera-modales {background:#3770a1; padding:10px; color:#fff; text-align:center; margin-bottom:15px;}
+
+/*Prioridad*/
+.Alta, .Media, .Baja, .Ninguna, .Agotada {color:#fff;}
+.Alta span {background:#dc3545; padding:5px; display:block;}
+.Media span {background:#ffa500; padding:5px; display:block;}
+.Baja span {background:#28a745; padding:5px; display:block;}
+.Ninguna span {background:#ccc  ; padding:5px; display:block;}
+.Agotada span {background:#000  ; padding:5px; display:block;}
+
+/*iconos*/
+.bi {font-size:20px;}

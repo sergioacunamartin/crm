@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}PyCRM: Administración Clientes{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4">
+              <div class="d-flex align-items-center col-md-2 mb-2 mb-md-0 text-dark text-decoration-none">
+                <img class="pt-1" src="{{ url_for("static", filename="img/logo.png") }}" alt="Logo" width="100%">
+              </div>
+              <ul class="col-12 col-md-auto mb-2 justify-content-center mb-md-0 nav nav-tabs">
+                <li class="nav-item"><a href="/admin/tareas" class="nav-link px-3 link-dark" title="Tareas"><i class="bi bi-list-task"></i> Tareas</a></li>
+                <li class="nav-item"><a href="/admin/trabajadores" class="nav-link px-3 link-dark" title="Trabajadores"><i class="bi bi-people" ></i> Trabajadores</a></li>
+                <li class="nav-item"><a href="#" class="nav-link px-3 link-dark  active" title="Clientes"><i class="bi bi-buildings"></i> Clientes</a></li>
+                <li class="nav-item"><a href="/admin/recompensas" class="nav-link px-3 link-dark" title="Recompensas"><i class="bi bi-cash"></i> Recompensas</a></li>
+              </ul>
+              <div class="col-md-3 text-end">
+                    <a class="btn btn-primary btn-login dropdown-toggle" href="#" role="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-check"></i> Conectado como: {{ session.username }}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
+                        {% if session.username == "admin" %}
+                        <li><a class="dropdown-item" href="{{url_for('logout')}}"><i class="bi bi-door-closed"></i> Cerrar Sesión</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="#" title="Editar Perfil" data-toggle="modal" data-target="#modaleditTrabajador{{ idUsuarioLogeado[0] }}"><i class="bi bi-pencil"></i> Editar Perfil</a></li>
+                        <li><a class="dropdown-item" href="{{url_for('logout')}}"><i class="bi bi-door-closed"></i> Cerrar Sesión</a></li>
+                        {% endif %}
+                    </ul>
+              </div>
+            </header>
+        </div>
+        {% with errors = get_flashed_messages(category_filter=["email-existe", "cliente-asignado", "usuario-existe", "email-usuario-existe"]) %}
+              {% if errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  {% for message in errors %}
+                    {{ message }}
+                  {% endfor %}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              {% endif %}
+        {% endwith %}
+        {% with oks = get_flashed_messages(category_filter=["cliente-guardado", "cliente-borrado", "cliente-actualizado", "cliente-sin-cambios"]) %}
+            {% if oks %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  {% for message in oks %}
+                    {{ message }}
+                  {% endfor %}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+            {% endif %}
+        {% endwith %}
+          <span class="col-md-12 mt-4">
+                <div class="dropdown mb-4">
+                    <a class="btn btn-success btn-guardar" data-toggle="modal" data-target="#modalguardar" title="Añadir Cliente"><i class="bi bi-building-add"></i> Añadir Cliente</a>
+                    <a class="btn btn-secondary dropdown-toggle btn-ordenar" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" title="Ordenar por...">
+                        <i class="bi bi-funnel"></i> Ordenar por...
+                    </a>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li><a class="dropdown-item" href="/admin/clientes/" title="Ordenar por Nombre A-Z"><i class="bi bi-sort-alpha-down"></i> Nombre ASC</a></li>
+                          <li><a class="dropdown-item" href="/admin/clientes/z-a" title="Ordenar por Nombre Z-A"><i class="bi bi-sort-alpha-up"></i> Nombre DESC</a></li>
+                        <li><a class="dropdown-item" href="/admin/clientes/email" title="Ordenar por Email"><i class="bi bi-envelope"></i> Email</a></li>
+                      </ul>
+                </div>
+          </span>
+            <!--Guardar Cliente-->
+            <div id="modalguardar" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="cabecera-modales"><h3>Añadir Cliente</h3></div>
+                        <form action="/admin/clientes/guardar" method="post">
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="txtGuardarNombre" id="txtGuardarNombre" aria-describedby="helpId" placeholder="Nombre de la Empresa" minlength="4" maxlength="50" required>
+                                <input type="text" class="form-control" name="txtGuardarUsuario" id="txtGuardarUsuario" value="" placeholder="Usuario" minlength="4" maxlength="25" required content="">
+                                <input type="email" class="form-control" name="txtGuardarEmail" id="txtGuardarEmail" aria-describedby="helpId" placeholder="Email" autocomplete="off" maxlength="20" required>
+                                <input type="password" class="form-control" name="txtGuardarPass" value="" id="txtGuardarPass" placeholder="Contraseña" autocomplete="off" minlength="5" maxlength="20" required>
+                                <button type="submit" class="btn btn-success">Guardar</button>
+                                 <a href="/admin/clientes/" class="btn btn-primary btn-login">Cerrar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!--Fin Modal Guardar-->
+            <!--mostrar clientes-->
+            <table class="table">
+                <thead class="thead-inverse">
+                <tr>
+                    <th><i class="bi bi-building"></i> Empresa</th>
+                    <th><i class="bi bi-person"></i> Usuario</th>
+                    <th><i class="bi bi-envelope"></i> Email</th>
+                    <th><i class="bi bi-database"></i> Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>{{ cliente[2] }}</td>
+                    <td>{{ cliente[4] }}</td>
+                    <td>{{ cliente[5] }}</td>
+                    <td>
+                        <a href="/admin/clientes/editar/{{ cliente[0] }}" class="btn btn-warning btn-editar" title="Editar Cliente" data-toggle="modal" data-target="#modaledit{{ cliente[0] }}"><i class="bi bi-pencil"></i></a>
+                        <a href="/admin/clientes/borrar/{{ cliente[0] }}" class="btn btn-danger" data-toggle="modal" data-target="#modaldelete{{ cliente[0] }}"><i class="bi bi-trash3-fill"></i></a>
+                    </td>
+                </tr>
+                </tbody>
+                <!--Modal Borrar-->
+                <div id="modaldelete{{ cliente[0] }}" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">¿Seguro que quieres borrar al cliente {{ cliente [2] }}?</h5>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="/admin/clientes/borrar/{{ cliente[0] }}" class="btn btn-danger">Si</a>
+                                <a href="/admin/clientes/" class="btn btn-primary">No</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Modal Editar-->
+                <div id="modaledit{{ cliente[0] }}" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="cabecera-modales"><h4>Estás editando al cliente {{ cliente[2] }}</h4></div>
+                                <form action="/admin/clientes/actualizar" method="post">
+                                    <div class="form-group">
+                                        <input hidden type="text" class="form-control" name="txtId" id="txtId" aria-describedby="helpId" value="{{ cliente[0] }}">
+                                        <input hidden type="text" class="form-control" name="txtIdCC" id="txtIdCC" aria-describedby="helpId" value="{{ cliente[1] }}">
+                                        <label>Nombre</label>
+                                        <!--nombre-->
+                                        <input type="text" class="form-control" name="txtNombre" id="txtNombre" aria-describedby="helpId" value="{{ cliente[2] }}" hidden>
+                                        <input type="text" class="form-control" name="txtNuevoNombre" id="txtNuevoNombre" aria-describedby="helpId" value="{{ cliente[2] }}" required>
+                                        <!--usuario-->
+                                        <label>Usuario</label>
+                                        <input type="text" class="form-control" name="txtUsuario" id="txtUsuario" aria-describedby="helpId" value="{{ cliente[4] }}" hidden>
+                                        <input type="text" class="form-control" name="txtNuevoUsuario" id="txtNuevoUsuario" aria-describedby="helpId" value="{{ cliente[4] }}" required>
+                                        <!--email-->
+                                        <label>Email</label>
+                                        <input type="email" class="form-control" name="txtEmail" id="txtEmail" aria-describedby="helpId" value="{{ cliente[5] }}" autocomplete="off" hidden>
+                                        <input type="email" class="form-control" name="txtNuevoEmail" id="txtNuevoEmail" aria-describedby="helpId" value="{{ cliente[5] }}" autocomplete="off" required>
+                                        <!--pass-->
+                                        <label>Contraseña</label>
+                                        <input type="password" class="form-control" name="txtPass" id="txtPass" aria-describedby="helpId" value="{{ cliente[6] }}" autocomplete="off" hidden>
+                                        <input type="password" class="form-control" name="txtNuevoPass" id="txtNuevoPass" aria-describedby="helpId" value="{{ cliente[6] }}" autocomplete="off" required>
+                                        <button type="submit" class="btn btn-success">Actualizar</button>
+                                        <a href="/admin/clientes/" class="btn btn-primary">Cerrar</a>
+                                    </div>
+                                </form>
+                        </div>
+                    </div>
+                </div>
+                <!--Modal Editar Trabajador-->
+                <div id="modaleditTrabajador{{ datosTrabajador[0] }}" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="cabecera-modales"><h4>Editar Trabajador: {{ datosTrabajador[3] }}</h4></div>
+                                <form action="/admin/trabajadores/actualizar" method="post">
+                                    <div class="form-group">
+                                        <input hidden type="text" class="form-control" name="txtId" id="txtIdTrabajador" aria-describedby="helpId" value="{{ datosTrabajador[0] }}">
+                                        <input hidden type="text" class="form-control" name="txtIdCT" id="txtIdCT" aria-describedby="helpId" value="{{ datosTrabajador[1] }}">
+                                        <label>Nombre</label>
+                                        <!--nombre-->
+                                        <input type="text" class="form-control" name="txtNombre" id="txtNombre" aria-describedby="helpId" value="{{ datosTrabajador[2] }}" hidden>
+                                        <input type="text" class="form-control" name="txtNuevoNombre" id="txtNuevoNombre" aria-describedby="helpId" value="{{ datosTrabajador[2] }}" required>
+                                        <!--dpto-->
+                                        <label>Departamento</label>
+                                        <select class="custom-select" name="selectDepartamento" id="selectDepartamento" hidden>
+                                            <option value="{{ datosTrabajador[3] }}">{{ datosTrabajador[3] }}</option>
+                                            <option value="Diseño Gráfico">Diseño Gráfico</option>
+                                            <option value="Diseño Web">Diseño Web</option>
+                                            <option value="Programación">Programación</option>
+                                        </select>
+                                        <select class="custom-select" name="selectNuevoDepartamento" id="selectNuevoDepartamento" required>
+                                            <option value="{{ datosTrabajador[3] }}">{{ datosTrabajador[3] }}</option>
+                                            <option value="Diseño Gráfico">Diseño Gráfico</option>
+                                            <option value="Diseño Web">Diseño Web</option>
+                                            <option value="Programación">Programación</option>
+                                        </select>
+                                        <!--usuario-->
+                                        <label>Usuario</label>
+                                        <input type="text" class="form-control" name="txtUsuario" id="txtUsuario" aria-describedby="helpId" value="{{ datosCuenta[1] }}" hidden>
+                                        {% if datosCuenta[1] == session.username %}
+                                        <input hidden type="text" class="form-control" name="txtNuevoUsuario" id="txtNuevoUsuario" aria-describedby="helpId" value="{{ datosCuenta[1] }}" required>
+                                        <input disabled type="text" class="form-control" name="txtNuevoUsuario" id="" aria-describedby="helpId" value="{{ datosCuenta[1] }}" required>
+                                        {% else %}
+                                        <input type="text" class="form-control" name="txtNuevoUsuario" id="txtNuevoUsuario" aria-describedby="helpId" value="{{ datosCuenta[1] }}" required>
+                                        {% endif %}
+                                        <!--email-->
+                                        <label>Email</label>
+                                        <input type="email" class="form-control" name="txtEmail" id="txtEmail" aria-describedby="helpId" value="{{ datosCuenta[2] }}" autocomplete="off" hidden>
+                                        <input type="email" class="form-control" name="txtNuevoEmail" id="txtNuevoEmail" aria-describedby="helpId" value="{{ datosCuenta[2] }}" autocomplete="off" required>
+                                        <!--pass-->
+                                        <label>Contraseña</label>
+                                        <input type="password" class="form-control" name="txtPass" id="txtPass" aria-describedby="helpId" value="{{ datosCuenta[3] }}" autocomplete="off" hidden>
+                                        <input type="password" class="form-control" name="txtNuevoPass" id="txtNuevoPass" aria-describedby="helpId" value="{{ datosCuenta[3] }}" autocomplete="off" required>
+                                        <!--nivel-->
+                                        <label>Nivel Acceso</label>
+                                        <select class="custom-select" name="selectNivel" id="selectNivel" hidden>
+                                            <option value="{{ datosCuenta[4] }}">{{ datosCuenta[4] }}</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="Trabajador">Trabajador</option>
+                                            <option value="Cliente">Cliente</option>
+                                        </select>
+                                        <select class="custom-select" name="selectNuevoNivel" id="selectNuevoNivel" required>
+                                            <option value="{{ datosCuenta[4] }}">{{ datosCuenta[4] }}</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="Trabajador">Trabajador</option>
+                                            <option value="Cliente">Cliente</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-success">Actualizar</button>
+                                        <a href="/admin/clientes/" class="btn btn-primary">Cerrar</a>
+                                    </div>
+                                </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </table>
+    </div>
+</div>
+{% endblock %}

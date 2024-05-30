@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% block title %}PyCRM: Hola {{ session.username }}{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4">
+              <div class="d-flex align-items-center col-md-2 mb-2 mb-md-0 text-dark text-decoration-none">
+                <img class="pt-1" src="{{ url_for("static", filename="img/logo.png") }}" alt="Logo" width="100%">
+              </div>
+              <div class="col-md-3 text-end">
+                    <a class="btn btn-primary btn-login dropdown-toggle" href="#" role="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-check"></i> Conectado como: {{ session.username }}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
+                        <li><a class="dropdown-item" href="{{url_for('logout')}}"><i class="bi bi-door-closed"></i> Cerrar Sesión</a></li>
+                    </ul>
+              </div>
+            </header>
+        </div>
+         {% with mensajes = get_flashed_messages(category_filter=["actualizada", "tarea-sin-cambios", "abrir-tarea"]) %}
+            {% if mensajes %}
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {% for mensaje in mensajes %}
+                  {{ mensaje }}
+                {% endfor %}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+            {% endif %}
+          {% endwith %}
+          {% with mensajes = get_flashed_messages(category_filter=["tarea-ninguna","tarea-finalizada"]) %}
+            {% if mensajes %}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {% for mensaje in mensajes %}
+                  {{ mensaje }}
+                {% endfor %}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+            {% endif %}
+          {% endwith %}
+            <span class="col-md-12 mt-4">
+                <div class="dropdown mb-4">
+                    <a class="btn btn-secondary dropdown-toggle btn-ordenar" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" title="Ordenar por...">
+                        <i class="bi bi-funnel"></i> Ordenar por...
+                    </a>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li><a class="dropdown-item" href="/trabajador/cliente/" title="Ordenar por Cliente"><i class="bi bi-buildings"></i> Cliente</a></li>
+                        <li><a class="dropdown-item" href="/trabajador/estado/" title="Ordenar por Estado"><i class="bi bi-clipboard2-data"></i> Estado</a></li>
+                        <li><a class="dropdown-item" href="/trabajador/" title="Ordenar por Fecha"><i class="bi bi-calendar"></i> Fecha</a></li>
+                        <li><a class="dropdown-item" href="/trabajador/prioridad/" title="Ordenar por Prioridad"><i class="bi bi-clock-history"></i> Prioridad</a></li>
+                      </ul>
+                </div>
+                <div class="dropdown-izquierda mb-4">
+                    <a class="btn btn-secondary dropdown-toggle btn-ordenar" href="#" role="button" id="dropdownMenuLinkIzquierda" data-bs-toggle="dropdown" aria-expanded="false" title="Contador de tareas">
+                        <i class="bi bi-list-ol"></i> Contador de Tareas
+                    </a>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li class="dropdown-item">Alta: {{ tareasAlta[0] }}</li>
+                        <li class="dropdown-item">Media: {{ tareasMedia[0] }}</li>
+                        <li class="dropdown-item">Baja: {{ tareasBaja[0] }}</li>
+                      </ul>
+                    <div class="btn btn-success" >
+                        {% if tareasFinalizadas[0] >= 4 %}
+                        <i class="bi bi-trophy"></i> Tareas Finalizadas: {{ tareasFinalizadas[0] }}&nbsp;&nbsp;<i class="bi bi-cash"></i> Recompesa: {{ tareasFinalizadas[0] * 10 - 30 }}€
+                        {% else %}
+                        <i class="bi bi-trophy"></i> Tareas Finalizadas: {{ tareasFinalizadas[0] }}&nbsp;&nbsp;<i class="bi bi-cash"></i> Recompesa: 0€
+                        {% endif %}
+                    </div>
+                </div>
+            </span>
+            <!--mostrar tarea-->
+            <table class="table">
+                <thead class="thead-inverse">
+                <tr>
+                    <th><i class="bi bi-calendar"></i> Fecha</th>
+                    <th><i class="bi bi-calendar-event"></i>  Fecha A.P.</th>
+                    <th><i class="bi bi-buildings"></i> Cliente</th>
+                    <th><i class="bi bi-card-heading"></i> Título</th>
+                    <th><i class="bi bi-clipboard2-data"></i> Estado</th>
+                    <th><i class="bi bi-clock-history"></i> Prioridad</th>
+                    <th><i class="bi bi-database"></i> Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for tarea in tareas %}
+                <tr>
+                    <td>{{ tarea[3].strftime('%d-%m-%Y') }}</td>
+                    <td>{{ tarea[9].strftime('%d-%m-%Y') }}</td>
+                    <td>{{ tarea[16] }}</td>
+                    <td>{{ tarea[4] }}</td>
+                    {% if tarea[6] == "Por empezar" %}
+                    <td><span><i class="bi bi-hourglass"></i> {{ tarea[6] }}</span></td>
+                    {% elif tarea[6] == "En proceso" %}
+                    <td><span><i class="bi bi-hourglass-split"></i> {{ tarea[6] }}</span></td>
+                    {% else %}
+                    <td><span><i class="bi bi-trophy"></i> {{ tarea[6] }}</span></td>
+                    {% endif %}
+                    {% if tarea[7] == "Alta" %}
+                    <td class="Alta"><span>{{ tarea[7] }}</span></td>
+                    {% elif tarea[7] == "Media" %}
+                    <td class="Media"><span>{{ tarea[7] }}</span></td>
+                    {% elif tarea[7] == "Baja" %}
+                    <td class="Baja"><span>{{ tarea[7] }}</span></td>
+                    {% elif tarea[7] == "Ninguna" %}
+                    <td class="Ninguna"><span>{{ tarea[7] }}</span></td>
+                    {% elif tarea[7] == "Agotada" %}
+                    <td class="Agotada"><span>{{ tarea[7] }}</span></td>
+                    {% endif %}
+                    <td>
+                        {% if tarea[6] == "Finalizada" %}
+                        <a href="#" class="btn finalizar" title="No se puede editar una tarea finalizada"><i class="bi bi-pencil"></i></a>
+                        {% else %}
+                        <a href="#" class="btn btn-warning btn-editar" title="Detalles / Cambiar Estado" data-toggle="modal" data-target="#modaledit{{ tarea[0] }}"><i class="bi bi-pencil"></i></a>
+                        {% endif %}
+                    </td>
+                </tr>
+                </tbody>
+                <!--Modal Editar-->
+                <div id="modaledit{{ tarea[0] }}" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="cabecera-modales">
+                                <h4>Editar Tarea: {{ tarea[4] }}</h4>
+                                <p style="margin-bottom:0px;">Si finaliza la tarea no podrá volver a editarla.<br/>Para abrir nuevamente la tarea contacte con un administrardor.</p>
+                            </div>
+                                <form action="/trabajador/actualizar-tarea" method="post">
+                                    <div class="form-group">
+                                    <input hidden type="text" class="form-control" name="txtId" id="txtId" aria-describedby="helpId" value="{{ tarea[0] }}">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label>Entrada</label>
+                                            <input type="text" class="form-control" name="txtFecha" id="txtFecha" aria-describedby="helpId" value="{{ tarea[3].strftime('%d-%m-%Y') }}" disabled>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Fin</label>
+                                            <input type="text" class="form-control" name="txtFechaFin" id="txtFechaFin" aria-describedby="helpId" value="{{ tarea[8].strftime('%d-%m-%Y') }}" disabled>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Actualización</label>
+                                            <input type="text" class="form-control" name="txtActualizacionPrioridad" id="txtActualizacionPrioridad" aria-describedby="helpId" value="{{ tarea[9].strftime('%d-%m-%Y') }}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label>Cliente</label>
+                                            <select class="custom-select" name="selectCliente" id="selectCliente" hidden>
+                                                <option value="{{ tarea[2] }}">{{ tarea[16] }}</option>
+                                                {% for cliente in clientes %}
+                                                <option value="{{ cliente[0] }}">{{ cliente[2] }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <select disabled class="custom-select" name="selectNuevoCliente" id="selectNuevoCliente">
+                                                <option value="{{ tarea[2] }}">{{ tarea[16] }}</option>
+                                                {% for cliente in clientes %}
+                                                <option value="{{ cliente[0] }}">{{ cliente[2] }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label>Título</label>
+                                            <input type="text" class="form-control" name="txtTitulo" id="txtTitulo" aria-describedby="helpId" value="{{ tarea[4] }}" hidden>
+                                            <input disabled type="text" class="form-control" name="txtNuevoTitulo" id="txtNuevoTitulo" aria-describedby="helpId" value="{{ tarea[4] }}">
+                                            <label>Descripción</label>
+                                            <textarea class="form-control" name="txtDescripcion" id="txtDescripcion" aria-describedby="helpId" hidden>{{ tarea[5] }}</textarea>
+                                            <textarea disabled class="form-control" name="txtNuevaDescripcion" id="txtNuevaDescripcion" aria-describedby="helpId">{{ tarea[5] }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Trabajador</label>
+                                            <select class="custom-select" name="selectTrabajador" id="selectTrabajador" hidden>
+                                                <option value="{{ tarea[1] }}">{{ tarea[12] }}</option>
+                                                {% for trabajador in trabajadores %}
+                                                <option value="{{ trabajador[0] }}">{{ trabajador[2] }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <select disabled class="custom-select" name="selectNuevoTrabajador" id="selectNuevoTrabajador">
+                                                <option value="{{ tarea[1] }}">{{ tarea[12] }}</option>
+                                                {% for trabajador in trabajadores %}
+                                                <option value="{{ trabajador[0] }}">{{ trabajador[2] }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Departamento</label>
+                                            <input type="text" class="form-control" name="txtDepartamento" id="txtDepartamento" aria-describedby="helpId" value="{{ tarea[13] }}" disabled>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Estado</label>
+                                            <select class="custom-select" name="selectEstado" id="selectEstado" hidden>
+                                                <option value="{{ tarea[6] }}">{{ tarea[6] }}</option>
+                                                <option value="Por empezar">Por empezar</option>
+                                                <option value="En proceso">En proceso</option>
+                                                <option value="Finalizada">Finalizada</option>
+                                            </select>
+                                            <select class="custom-select" name="selectNuevoEstado" id="selectNuevoEstado">
+                                                <option value="{{ tarea[6] }}">{{ tarea[6] }}</option>
+                                                <option value="Por empezar">Por empezar</option>
+                                                <option value="En proceso">En proceso</option>
+                                                <option value="Finalizada">Finalizada</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Prioridad</label>
+                                            <label for="selectPrioridad"></label>
+                                            <select class="custom-select" name="selectPrioridad" id="selectPrioridad" hidden>
+                                                <option value="{{ tarea[7] }}">{{ tarea[7] }}</option>
+                                                <option value="Baja">Baja</option>
+                                                <option value="Media">Media</option>
+                                                <option value="Alta">Alta</option>
+                                            </select>
+                                            <select disabled class="custom-select" name="selectNuevaPrioridad" id="selectNuevaPrioridad">
+                                                <option value="{{ tarea[7] }}">{{ tarea[7] }}</option>
+                                                <option value="Baja">Baja</option>
+                                                <option value="Media">Media</option>
+                                                <option value="Alta">Alta</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                     <div class="row">
+                                        <div class="col-md-12">
+                                            <button type="submit" class="btn btn-success">Actualizar</button>
+                                            <a href="/trabajador/" class="btn btn-primary btn-login">Cerrar</a>
+                                        </div>
+                                     </div>
+                                    </div>
+                               </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </table>
+    </div>
+</div>
+{% endblock %}
