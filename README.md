@@ -1,7 +1,8 @@
 <h1>CRM</h1>
 
 <p>Principalmente el programa se basa en la gestión de tareas de una empresa, con unas prioridades (baja, media, alta, agotada y ninguna) y unos estados (por empezar, en proceso y finalizada). Cada tarea está asociada a un trabajador y a un cliente.</p>
-<a href="https://github.com/sergioacunamartin/crm" title="Ver Proyecto CRM"><img src="https://github.com/sergioacunamartin/crm/blob/main/crm.jpg" alt="Imagen Cabecera CRM" /></a>
+<a href="https://github.com/sergioacunamartin/crm" title="Ver Proyecto CRM"><img src="https://github.com/sergioacunamartin/crm/blob/main/cabecera-crm.jpg" alt="Imagen Cabecera CRM" /></a>
+
 <h2>Stack Tecnológico</h2>
 <ul>
     <li><strong>Lenguajes de Programación:</strong> Python.</li>
